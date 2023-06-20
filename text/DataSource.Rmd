@@ -1,0 +1,13 @@
+---
+title: "DataSource"
+author: "Minling Xiao"
+date: "2023"
+output: md_document
+---
+
+The data used for the visualization in this application are orginally sourced from: 
+
+* The 2018 New Zealand Index of Multiple Deprivation (IMD18) data: https://hgd.auckland.ac.nz/imd18/
+* Alcohol outlets data: https://www.canterbury.ac.nz/science/research/geohealth/tabs/publications-reports-and-data/ 
+* New Zealand school data: https://catalogue.data.govt.nz/dataset/directory-of-educational-institutions/resource/20b7c271-fd5a-4c9e-869b-481a0e2453cd
+* Marae of Aotearoa data: https://tpk.maps.arcgis.com/home/item.html?id=3b9e52a2012a4e4cb434e07ce19b36dd
