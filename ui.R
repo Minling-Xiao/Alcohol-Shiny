@@ -219,10 +219,10 @@ ui = navbarPage(
                                              %>%withSpinner(color="grey")),
                                     tabPanel("Density - Zones",
                                              fluidRow(
-                                               column(6,h4("By Population"),
+                                               column(6,h4(strong("By Population")),
                                                       leafletOutput("off_license_scenario_density_pop_plot", height = 600)%>%
                                                         withSpinner(color="grey")),
-                                               column(6,h4("By Shape Area"),
+                                               column(6,h4(strong("By Shape Area")),
                                                       leafletOutput("off_license_scenario_density_area_plot", height = 600)%>%
                                                         withSpinner(color="grey")))),
                                     # tabPanel("Deprivation",
@@ -246,11 +246,11 @@ ui = navbarPage(
                                                       column(8,plotlyOutput("scenario_zones_hist_area")
                                                              %>%withSpinner(color="grey")))),
                                     tabPanel("Summary",
-                                             h4("Density - 4 Zones"),
+                                             h4(strong("Density - 4 Zones")),
                                              br(),
                                              dataTableOutput("off_license_scenario_density_table")%>%withSpinner(color="grey"),
                                              hr(),
-                                             h4("Density - Deprivation"),
+                                             h4(strong("Density - Deprivation")),
                                              br(),
                                              "Overall",
                                              br(),

@@ -1,5 +1,5 @@
-This application is aim to visualize access to alcohol outlets in
-Auckland, New Zealand icluding:
+This application aims to visualize access to alcohol outlets in
+Auckland, New Zealand including:
 
 -   visualizing the geographic locations of existing on-license and
     off-license alcohol outlets (**Map on the right**);
@@ -41,4 +41,6 @@ divided into:
     either the Waitakere Licensing Trust or the Portage Licensing Trust.
 
 The map on the right shows the current situation of both on-license and
-off-license alcohol outlets.
+off-license alcohol outlets. Clicking the layer icon on top left of the
+map allows you to display the distribution of on-license and off-license
+outlets in Auckland.

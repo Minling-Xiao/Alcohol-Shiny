@@ -26,7 +26,7 @@ server = function(input, output){
   overall_on_density_table = reactive({
     load("RData/dep_overall_on_license.RData")
     overall$Density_per_10000_people = round(overall$Density_per_10000_people,4)
-    overall$Density_per_km² = round(overall$Density_per_km²,6)
+    overall$`Density_per_km²` = round(overall$`Density_per_km²`,6)
     overall$Shape_area = round(overall$Shape_area,6)
     return(overall)
   })
@@ -34,7 +34,7 @@ server = function(input, output){
   zones_on_density_table = reactive({
     load("RData/dep_zones_on_license.RData")
     on_zones_density$Density_per_10000_people = round(on_zones_density$Density_per_10000_people,4)
-    on_zones_density$Density_per_km² = round(on_zones_density$Density_per_km²,6)
+    on_zones_density$`Density_per_km²` = round(on_zones_density$`Density_per_km²`,6)
     on_zones_density$Shape_area = round(on_zones_density$Shape_area,6)
     on_zones_density[,c(1,2,5,3,6,4,7)]
   })
@@ -42,7 +42,7 @@ server = function(input, output){
   overall_off_density_table = reactive({
     load("RData/dep_overall_off_license.RData")
     overall$Density_per_10000_people = round(overall$Density_per_10000_people,4)
-    overall$Density_per_km² = round(overall$Density_per_km²,6)
+    overall$`Density_per_km²` = round(overall$`Density_per_km²`,6)
     overall$Shape_area = round(overall$Shape_area,6)
     return(overall)
   })
@@ -50,7 +50,7 @@ server = function(input, output){
   zones_off_density_table = reactive({
     load("RData/dep_zones_off_license.RData")
     off_zones_density$Density_per_10000_people = round(off_zones_density$Density_per_10000_people,4)
-    off_zones_density$Density_per_km² = round(off_zones_density$Density_per_km²,6)
+    off_zones_density$`Density_per_km²` = round(off_zones_density$`Density_per_km²`,6)
     off_zones_density$Shape_area = round(off_zones_density$Shape_area,6)
     off_zones_density[,c(1,2,5,3,6,4,7)]
   })
@@ -75,22 +75,60 @@ server = function(input, output){
     Off_license = filter(alcohol, License_Ty=="Off-licence")
     Label_Area = st_cast(on_license_density)[-2,]
     
-    map = tm_shape(IMD) + tm_polygons("Areas", palette = "Set2", alpha = 0.8,popup.vars=colnames(IMD)[1:(ncol(IMD)-1)]) +
+    map = tm_shape(IMD) + tm_polygons("Areas", palette = "Set2", alpha = 0.8, 
+                                      popup.vars=colnames(IMD)[1:(ncol(IMD)-1)],
+                                      legend.show = FALSE) +
       tm_shape(On_license) + tm_dots(col = "ivory") +
       tm_shape(Off_license) + tm_dots(col ="purple") + tm_view(set.view=c(174.76,-36.8,10)) +
-      tm_add_legend(type="fill",labels = c("On_license","Off_license"),col = c("ivory","purple"),title = "Alcohol Outlets")
+      tm_add_legend(type="fill",
+                    labels = c("CBD","Other","Trust - Portage","Trust - Waitakere","On_license","Off_license"),
+                    col = c(brewer.pal(4, "Set2"),"ivory","purple"))
     
     tmap_leaflet(map,in.shiny=T)%>%hideGroup(c("On_license","Off_license"))
   })
   
   ## Density - On license
   output$on_density_pop_map = renderLeaflet({
-    load("map/on_license_pop_density.RData")
+    alcohol = alcohol()
+    Density = on_license_density()
+    breaks = sort(Density$Density_per_10000_people)
+    breaks = c(floor(breaks[1]), ceiling(breaks))
+    breaks = unique(breaks)
+    Label_Area = st_cast(Density)[-2,]
+    On_license = filter(alcohol, License_Ty=="On-licence")
+    
+    map = tm_shape(Density)+
+      tm_polygons(col="Density_per_10000_people",
+                  palette="Blues",
+                  style="fixed", 
+                  breaks=breaks,
+                  title="Density per 10000 people") +
+      tm_shape(Label_Area) + tm_text("Areas") +
+      tm_shape(On_license) + tm_dots(col = "ivory") +
+      tm_view(set.view=c(174.76,-36.8,10))
+    
     tmap_leaflet(map,in.shiny = TRUE)%>%hideGroup("On_license")
   })
 
   output$on_density_area_map = renderLeaflet({
-    load("map/on_license_area_density.RData")
+    alcohol = alcohol()
+    Density = on_license_density()
+    breaks = sort(Density$`Density_per_km²`)*10
+    breaks = c(floor(breaks[1]), ceiling(breaks))
+    breaks = unique(breaks)/10
+    Label_Area = st_cast(Density)[-2,]
+    On_license = filter(alcohol, License_Ty=="On-licence")
+    
+    map = tm_shape(Density)+
+      tm_polygons(col = "Density_per_km²",
+                  palette = "Purples",
+                  style = "fixed",
+                  breaks = breaks,
+                  title = "Density per km²") +
+      tm_shape(Label_Area) + tm_text("Areas") +
+      tm_shape(On_license) + tm_dots(col = "ivory") +
+      tm_view(set.view=c(174.76,-36.8,10))
+    
     tmap_leaflet(map,in.shiny = TRUE)%>%hideGroup("On_license")
   })
   
@@ -106,7 +144,24 @@ server = function(input, output){
   
   ## Density - Off license
   output$off_density_pop_map = renderLeaflet({
-    load("map/off_license_pop_density.RData")
+    alcohol = alcohol()
+    Density = off_license_density()
+    breaks = sort(Density$Density_per_10000_people)
+    breaks = c(floor(breaks[1]), ceiling(breaks))
+    breaks = unique(breaks)
+    Label_Area = st_cast(Density)[-2,]
+    Off_license = filter(alcohol, License_Ty=="Off-licence")
+    
+    map = tm_shape(Density)+
+      tm_polygons(col="Density_per_10000_people",
+                  palette="Blues",
+                  style="fixed", 
+                  breaks=breaks,
+                  title="Density per 10000 people") +
+      tm_shape(Label_Area) + tm_text("Areas") +
+      tm_shape(Off_license) + tm_dots(col = "ivory") +
+      tm_view(set.view=c(174.76,-36.8,10))
+    
     tmap_leaflet(map,in.shiny = TRUE)%>%hideGroup("Off_license")
   })
   
@@ -116,7 +171,24 @@ server = function(input, output){
   })
   
   output$off_density_area_map = renderLeaflet({
-    load("map/off_license_area_density.RData")
+    alcohol = alcohol()
+    Density = off_license_density()
+    breaks = sort(Density$`Density_per_km²`)*10
+    breaks = c(floor(breaks[1]), ceiling(breaks))
+    breaks = unique(breaks)/10
+    Label_Area = st_cast(Density)[-2,]
+    Off_license = filter(alcohol, License_Ty=="Off-licence")
+    
+    map = tm_shape(Density)+
+      tm_polygons(col = "Density_per_km²",
+                  palette = "Purples",
+                  style = "fixed",
+                  breaks = breaks,
+                  title = "Density per km²") +
+      tm_shape(Label_Area) + tm_text("Areas") +
+      tm_shape(Off_license) + tm_dots(col = "ivory") +
+      tm_view(set.view=c(174.76,-36.8,10))
+    
     tmap_leaflet(map,in.shiny = TRUE)%>%hideGroup("Off_license")
   })
   
@@ -288,10 +360,10 @@ server = function(input, output){
       Population = sapply(1:5,function(x)sum(IMD_Auckland$Census_Pop[IMD_Auckland$Quintile==x]))/10000
       Shape_area = sapply(1:5,function(x)sum(IMD_Auckland$Shape_Area[IMD_Auckland$Quintile==x]))/1e6
       Density_per_10000_people = Number_of_outlets1/Population
-      Density_per_km² = Number_of_outlets1/Shape_area
+      `Density_per_km²` = Number_of_outlets1/Shape_area
       overall_den = data.frame(Quintile=1:5,Population,Shape_area,
                                Number_of_outlets=Number_of_outlets1,
-                               Density_per_10000_people,Density_per_km²)
+                               Density_per_10000_people,`Density_per_km²`)
       
       # zones dep
       zone_list = lapply(unique(IMD_Auckland$Areas), function(x)filter(IMD_Auckland,Areas==x))
@@ -310,7 +382,7 @@ server = function(input, output){
       Quintile = rep(1:5,4)
       off_zones_density = cbind(Area,Quintile,pop_area,Number_of_outlets)
       off_zones_density$Density_per_10000_people = off_zones_density$Number_of_outlets/off_zones_density$Population
-      off_zones_density$Density_per_km² = off_zones_density$Number_of_outlets/off_zones_density$Shape_area
+      off_zones_density$`Density_per_km²` = off_zones_density$Number_of_outlets/off_zones_density$Shape_area
     }
     return(list("school_dist"=school_dist,
                 "mario_dist"=marae_dist,
@@ -401,7 +473,7 @@ server = function(input, output){
       Number_of_outlets_after = lengths(st_intersects(org_density,alcohol))
       org_density$Number_of_outlets_after = Number_of_outlets_after
       org_density$Density_per_10000_people_after = Number_of_outlets_after/org_density$Population 
-      org_density$Density_per_km²_after = Number_of_outlets_after/org_density$Shape_area
+      org_density$`Density_per_km²_after` = Number_of_outlets_after/org_density$Shape_area
       colnames(org_density)[c(2,4,6)] = c("Number_of_outlets_before","Density_per_10000_people_before","Density_per_km²_before")
       org_density[,c("Areas","Number_of_outlets_before","Number_of_outlets_after","Population",
                      "Density_per_10000_people_before","Density_per_10000_people_after",
@@ -427,7 +499,24 @@ server = function(input, output){
     Existing_Outlets = filter(alcohol(), License_Ty == "Off-licence")
     Resulting_Outlets = off_license_scenario()[[7]]
     if (nrow(Resulting_Outlets)==0){
-      load("map/off_license_pop_density.RData")
+      alcohol = alcohol()
+      Density = off_license_density()
+      breaks = sort(Density$Density_per_10000_people)
+      breaks = c(floor(breaks[1]), ceiling(breaks))
+      breaks = unique(breaks)
+      Label_Area = st_cast(Density)[-2,]
+      Off_license = filter(alcohol, License_Ty=="Off-licence")
+      
+      map = tm_shape(Density)+
+        tm_polygons(col="Density_per_10000_people",
+                    palette="Blues",
+                    style="fixed", 
+                    breaks=breaks,
+                    title="Density per 10000 people") +
+        tm_shape(Label_Area) + tm_text("Areas") +
+        tm_shape(Off_license) + tm_dots(col = "ivory") +
+        tm_view(set.view=c(174.76,-36.8,10))
+      
       return(tmap_leaflet(map,in.shiny = TRUE)%>%hideGroup("Off_license"))
     }else{
       Density = off_license_scenario_density()
@@ -453,17 +542,34 @@ server = function(input, output){
     Existing_Outlets = filter(alcohol(), License_Ty == "Off-licence")
     Resulting_Outlets = off_license_scenario()[[7]]
     if (nrow(Resulting_Outlets)==0) {
-      load("map/off_license_area_density.RData")
+      alcohol = alcohol()
+      Density = off_license_density()
+      breaks = sort(Density$`Density_per_km²`)*10
+      breaks = c(floor(breaks[1]), ceiling(breaks))
+      breaks = unique(breaks)/10
+      Label_Area = st_cast(Density)[-2,]
+      Off_license = filter(alcohol, License_Ty=="Off-licence")
+      
+      map = tm_shape(Density)+
+        tm_polygons(col = "Density_per_km²",
+                    palette = "Purples",
+                    style = "fixed",
+                    breaks = breaks,
+                    title = "Density per km²") +
+        tm_shape(Label_Area) + tm_text("Areas") +
+        tm_shape(Off_license) + tm_dots(col = "ivory") +
+        tm_view(set.view=c(174.76,-36.8,10))
+      
       map = tmap_leaflet(map,in.shiny = TRUE)%>%hideGroup("Off_license")
     } else{
       Density = off_license_scenario_density()
-      breaks = sort(Density$Density_per_km²_after)*10
+      breaks = sort(Density$`Density_per_km²_after`)*10
       breaks = c(floor(breaks[1]), ceiling(breaks))
       breaks = unique(breaks/10)
       Label_Area = st_cast(Density)[-2,]
       map = tm_shape(Density)+
         tm_polygons(col = "Density_per_km²_after",
-                    palette = "Blues",
+                    palette = "Purples",
                     style = "fixed",
                     breaks = breaks,
                     title = "Density per km²")+
@@ -483,10 +589,10 @@ server = function(input, output){
     if(nrow(off_license_scenario()[[7]])==0) return(before)
     else{
       density$Density_per_10000_people = round(density$Density_per_10000_people,4)
-      density$Density_per_km² = round(density$Density_per_km²,6)
+      density$`Density_per_km²` = round(density$`Density_per_km²`,6)
       names(density)[4:6]=paste0(names(density)[4:6],"_after")
       density$Density_per_10000_people_before = round(before$Density_per_10000_people,4)
-      density$Density_per_km²_before = round(before$Density_per_km²,6)
+      density$`Density_per_km²_before` = round(before$`Density_per_km²`,6)
       density$Number_of_outlets_before = before$Number_of_outlets
       density[,c(1:3,9,4,7,5,8,6)]
     } 
@@ -499,25 +605,32 @@ server = function(input, output){
     if(nrow(off_license_scenario()[[7]])==0) return(before)
     else{
       density$Density_per_10000_people = round(density$Density_per_10000_people,4)
-      density$Density_per_km² = round(density$Density_per_km²,6)
+      density$`Density_per_km²` = round(density$`Density_per_km²`,6)
       names(density)[5:7]=paste0(names(density)[5:7],"_after")
       density$Density_per_10000_people_before = round(before$Density_per_10000_people,4)
-      density$Density_per_km²_before = round(before$Density_per_km²,6)
+      density$`Density_per_km²_before` = round(before$`Density_per_km²`,6)
       density$Number_of_outlets_before = before$Number_of_outlets
       density[,c(1:4,10,5,8,6,9,7)]
     } 
   })
   
+  # Deprivation Histogram
   output$on_overall_hist_pop = renderPlotly({
     density = overall_on_density_table()
+    den = sort(density$Density_per_10000_people)
+    EQ = den[5]/den[1]
+    RR = density$Density_per_10000_people[density$Quintile==5]/density$Density_per_10000_people[density$Quintile==1]
     plot_ly(data=density,x=paste0("Q",density$Quintile),y=~Density_per_10000_people,type="bar",color=I("skyblue")) %>%
-      layout(yaxis=list(title="Density"), xaxis=list(title="Quintile"))
+      layout(yaxis=list(title="Density"), xaxis=list(title=paste0("Quintile",'\n',"EQ = ",round(EQ,1),"   RR = ",round(RR,1))))
   })
   
   output$on_overall_hist_area = renderPlotly({
     density = overall_on_density_table()
-    plot_ly(data=density,x=paste0("Q",density$Quintile),y=~Density_per_km²,type="bar",color=I("skyblue")) %>%
-      layout(yaxis=list(title="Density"), xaxis=list(title="Quintile"))
+    den = sort(density$`Density_per_km²`)
+    EQ = den[5]/den[1]
+    RR = density$`Density_per_km²`[density$Quintile==5]/density$`Density_per_km²`[density$Quintile==1]
+    plot_ly(data=density,x=paste0("Q",density$Quintile),y=~`Density_per_km²`,type="bar",color=I("skyblue")) %>%
+      layout(yaxis=list(title="Density"), xaxis=list(title=paste0("Quintile",'\n',"EQ = ",round(EQ,1),"   RR = ",round(RR,1))))
   })
   
   output$on_zones_hist_pop = renderPlotly({
@@ -526,6 +639,15 @@ server = function(input, output){
     df1 = density[density$Area!="CBD",]
     df2 = density[density$Area=="CBD",]
     
+    EQ = sapply(unique(density$Area), 
+                function(x){den = sort(density$Density_per_10000_people[density$Area==x]);den[5]/den[1]})
+    RR = sapply(unique(density$Area), 
+                function(x){
+                  df = density[density$Area==x,]
+                  df$Density_per_10000_people[df$Quintile==5]/df$Density_per_10000_people[df$Quintile==1]})
+    EQ = EQ[c(1,3,2,4)]
+    RR = RR[c(1,3,2,4)]
+    
     p1 = plot_ly(data=df1,x=~Area,y=~Density_per_10000_people, type="bar",color=~factor(Quintile),name=~factor(Quintile)) %>% 
       style(showlegend = FALSE)
     p2 = plot_ly(data=df2,x=~Area,y=~Density_per_10000_people, type="bar",color=~factor(Quintile)) %>% 
@@ -533,7 +655,15 @@ server = function(input, output){
     
     subplot(p1, p2, widths=c(0.75,0.25)) %>%
       layout(legend = list(title=list(text="Quintile"),orientation = "h",xanchor = "center", x = 0.5, y = 0.95), 
-             yaxis=list(title="Density"))
+             yaxis=list(title="Density")) %>%
+      add_annotations(x = c(.12, .36, .61, 0.89),
+                      y = -0.05,
+                      text = paste0("EQ = ",round(EQ,1),"    RR = ",round(RR,1)),
+                      xref = "paper",
+                      yref = "paper",
+                      xanchor = "center",
+                      yanchor = "top",
+                      showarrow = F)
   })
   
   output$on_zones_hist_area = renderPlotly({
@@ -542,26 +672,49 @@ server = function(input, output){
     df1 = density[density$Area!="CBD",]
     df2 = density[density$Area=="CBD",]
     
-    p1 = plot_ly(data=df1,x=~Area,y=~Density_per_km², type="bar",color=~factor(Quintile),name=~factor(Quintile)) %>% 
+    EQ = sapply(unique(density$Area), 
+                function(x){den = sort(density$`Density_per_km²`[density$Area==x]);den[5]/den[1]})
+    RR = sapply(unique(density$Area), 
+                function(x){
+                  df = density[density$Area==x,]
+                  df$`Density_per_km²`[df$Quintile==5]/df$`Density_per_km²`[df$Quintile==1]})
+    EQ = EQ[c(1,3,2,4)]
+    RR = RR[c(1,3,2,4)]
+    
+    p1 = plot_ly(data=df1,x=~Area,y=~`Density_per_km²`, type="bar",color=~factor(Quintile),name=~factor(Quintile)) %>% 
       style(showlegend = FALSE)
-    p2 = plot_ly(data=df2,x=~Area,y=~Density_per_km², type="bar",color=~factor(Quintile)) %>% 
+    p2 = plot_ly(data=df2,x=~Area,y=~`Density_per_km²`, type="bar",color=~factor(Quintile)) %>% 
       layout(yaxis=list(side="right"))
     
     subplot(p1, p2, widths=c(0.75,0.25)) %>%
       layout(legend = list(title=list(text="Quintile"),orientation = "h",xanchor = "center", x = 0.5, y = 0.95), 
-             yaxis=list(title="Density"))
+             yaxis=list(title="Density")) %>%
+      add_annotations(x = c(.12, .36, .61, 0.89),
+                      y = -0.05,
+                      text = paste0("EQ = ",round(EQ,1),"    RR = ",round(RR,1)),
+                      xref = "paper",
+                      yref = "paper",
+                      xanchor = "center",
+                      yanchor = "top",
+                      showarrow = F)
   })
   
   output$off_overall_hist_pop = renderPlotly({
     density = overall_off_density_table()
+    den = sort(density$Density_per_10000_people)
+    EQ = den[5]/den[1]
+    RR = density$Density_per_10000_people[density$Quintile==5]/density$Density_per_10000_people[density$Quintile==1]
     plot_ly(data=density,x=paste0("Q",density$Quintile),y=~Density_per_10000_people,type="bar",color=I("skyblue")) %>%
-      layout(yaxis=list(title="Density"), xaxis=list(title="Quintile"))
+      layout(yaxis=list(title="Density"), xaxis=list(title=paste0("Quintile",'\n',"EQ = ",round(EQ,1),"   RR = ",round(RR,1))))
   })
   
   output$off_overall_hist_area = renderPlotly({
     density = overall_off_density_table()
-    plot_ly(data=density,x=paste0("Q",density$Quintile),y=~Density_per_km²,type="bar",color=I("skyblue")) %>%
-      layout(yaxis=list(title="Density"), xaxis=list(title="Quintile"))
+    den = sort(density$`Density_per_km²`)
+    EQ = den[5]/den[1]
+    RR = density$`Density_per_km²`[density$Quintile==5]/density$`Density_per_km²`[density$Quintile==1]
+    plot_ly(data=density,x=paste0("Q",density$Quintile),y=~`Density_per_km²`,type="bar",color=I("skyblue")) %>%
+      layout(yaxis=list(title="Density"), xaxis=list(title=paste0("Quintile",'\n',"EQ = ",round(EQ,1),"   RR = ",round(RR,1))))
   })
   
   output$off_zones_hist_pop = renderPlotly({
@@ -570,6 +723,15 @@ server = function(input, output){
     df1 = density[density$Area!="CBD",]
     df2 = density[density$Area=="CBD",]
     
+    EQ = sapply(unique(density$Area), 
+                function(x){den = sort(density$Density_per_10000_people[density$Area==x]);den[5]/den[1]})
+    RR = sapply(unique(density$Area), 
+                function(x){
+                  df = density[density$Area==x,]
+                  df$Density_per_10000_people[df$Quintile==5]/df$Density_per_10000_people[df$Quintile==1]})
+    EQ = EQ[c(1,3,2,4)]
+    RR = RR[c(1,3,2,4)]
+    
     p1 = plot_ly(data=df1,x=~Area,y=~Density_per_10000_people, type="bar",color=~factor(Quintile),name=~factor(Quintile)) %>% 
       style(showlegend = FALSE)
     p2 = plot_ly(data=df2,x=~Area,y=~Density_per_10000_people, type="bar",color=~factor(Quintile)) %>% 
@@ -577,7 +739,15 @@ server = function(input, output){
     
     subplot(p1, p2, widths=c(0.75,0.25)) %>%
       layout(legend = list(title=list(text="Quintile"),orientation = "h",xanchor = "center", x = 0.5, y = 0.95), 
-             yaxis=list(title="Density"))
+             yaxis=list(title="Density")) %>%
+      add_annotations(x = c(.12, .36, .61, 0.89),
+                      y = -0.05,
+                      text = paste0("EQ = ",round(EQ,1),"    RR = ",round(RR,1)),
+                      xref = "paper",
+                      yref = "paper",
+                      xanchor = "center",
+                      yanchor = "top",
+                      showarrow = F)
   })
   
   output$off_zones_hist_area = renderPlotly({
@@ -586,39 +756,92 @@ server = function(input, output){
     df1 = density[density$Area!="CBD",]
     df2 = density[density$Area=="CBD",]
     
-    p1 = plot_ly(data=df1,x=~Area,y=~Density_per_km², type="bar",color=~factor(Quintile),name=~factor(Quintile)) %>% 
+    EQ = sapply(unique(density$Area), 
+                function(x){den = sort(density$`Density_per_km²`[density$Area==x]);den[5]/den[1]})
+    RR = sapply(unique(density$Area), 
+                function(x){
+                  df = density[density$Area==x,]
+                  df$`Density_per_km²`[df$Quintile==5]/df$`Density_per_km²`[df$Quintile==1]})
+    EQ = EQ[c(1,3,2,4)]
+    RR = RR[c(1,3,2,4)]
+    
+    p1 = plot_ly(data=df1,x=~Area,y=~`Density_per_km²`, type="bar",color=~factor(Quintile),name=~factor(Quintile)) %>% 
       style(showlegend = FALSE)
-    p2 = plot_ly(data=df2,x=~Area,y=~Density_per_km², type="bar",color=~factor(Quintile)) %>% 
+    p2 = plot_ly(data=df2,x=~Area,y=~`Density_per_km²`, type="bar",color=~factor(Quintile)) %>% 
       layout(yaxis=list(side="right"))
     
     subplot(p1, p2, widths=c(0.75,0.25)) %>%
       layout(legend = list(title=list(text="Quintile"),orientation = "h",xanchor = "center", x = 0.5, y = 0.95), 
-             yaxis=list(title="Density"))
+             yaxis=list(title="Density")) %>%
+      add_annotations(x = c(.12, .36, .61, 0.89),
+                      y = -0.05,
+                      text = paste0("EQ = ",round(EQ,1),"    RR = ",round(RR,1)),
+                      xref = "paper",
+                      yref = "paper",
+                      xanchor = "center",
+                      yanchor = "top",
+                      showarrow = F)
   })
   
   output$scenario_zones_hist_pop = renderPlotly({
     before = zones_off_density_table()
     after = off_license_scenario()[[11]]
     
+    EQ_before = sapply(c("CBD","Other","Trust - Waitakere","Trust - Portage"), 
+                function(x){den = sort(before$Density_per_10000_people[before$Area==x]);den[5]/den[1]})
+    RR_before = sapply(c("CBD","Other","Trust - Waitakere","Trust - Portage"), 
+                function(x){
+                  df = before[before$Area==x,]
+                  df$Density_per_10000_people[df$Quintile==5]/df$Density_per_10000_people[df$Quintile==1]})
+    EQ_after = sapply(c("CBD","Other","Trust - Waitakere","Trust - Portage"), 
+                       function(x){den = sort(after$Density_per_10000_people[after$Area==x]);den[5]/den[1]})
+    RR_after = sapply(c("CBD","Other","Trust - Waitakere","Trust - Portage"), 
+                       function(x){
+                         df = after[after$Area==x,]
+                         df$Density_per_10000_people[df$Quintile==5]/df$Density_per_10000_people[df$Quintile==1]})
+    EQ_before = round(EQ_before,1)
+    RR_before = round(RR_before,1)
+    EQ_after = round(EQ_after,1)
+    RR_after = round(RR_after,1)
+    
     df = merge(before,after,by=c("Area","Quintile"))
     df$Quintile=paste0("Q",df$Quintile)
     p1 = plot_ly(df[df$Area=="CBD",],x=~Quintile, y=~Density_per_10000_people.x, type='bar', color=I("royalblue"))%>%
       add_trace(y=~Density_per_10000_people.y, color=I("orange"))%>%style(showlegend = FALSE)%>%
-      add_annotations(text = ~Area,x = 0.5,y = 1,yref = "paper",xref = "paper",
-                      xanchor = "center",yanchor = "bottom",showarrow = FALSE)
+      add_annotations(text = ~Area,
+                      x = 0.5,y = 1,yref = "paper",xref = "paper",
+                      xanchor = "center",yanchor = "bottom",showarrow = FALSE) %>%
+      add_annotations(text = paste0('B: EQ = ',EQ_before[1],'    RR = ',RR_before[1],'\n',
+                                    'A: EQ = ',EQ_after[1],'    RR = ',RR_after[1]),
+                      x = 0.01,y = 0.95,yref = "paper",xref = "paper",
+                      xanchor = "left",yanchor = "top",showarrow = FALSE)
     p2 = plot_ly(df[df$Area=="Other",],x=~Quintile, y=~Density_per_10000_people.x, type='bar', color=I("royalblue"))%>%
       add_trace(y=~Density_per_10000_people.y, color=I("orange"))%>%style(showlegend = FALSE)%>%
-      add_annotations(text = ~Area,x = 0.5,y = 1,yref = "paper",xref = "paper",
-                      xanchor = "center",yanchor = "bottom",showarrow = FALSE)
+      add_annotations(text = ~Area,
+                      x = 0.5,y = 1,yref = "paper",xref = "paper",
+                      xanchor = "center",yanchor = "bottom",showarrow = FALSE) %>%
+      add_annotations(text = paste0('B: EQ = ',EQ_before[2],'    RR = ',RR_before[2],'\n',
+                                    'A: EQ = ',EQ_after[2],'    RR = ',RR_after[2]),
+                      x = 0.01,y = 0.95,yref = "paper",xref = "paper",
+                      xanchor = "left",yanchor = "top",showarrow = FALSE)
     p3 = plot_ly(df[df$Area=="Trust - Waitakere",],x=~Quintile, y=~Density_per_10000_people.x, type='bar', color=I("royalblue"))%>%
       add_trace(y=~Density_per_10000_people.y, color=I("orange"))%>%style(showlegend = FALSE)%>%
-      add_annotations(text = ~Area,x = 0.5,y = 1,yref = "paper",xref = "paper",
-                      xanchor = "center",yanchor = "bottom",showarrow = FALSE)
+      add_annotations(text = ~Area,
+                      x = 0.5,y = 1,yref = "paper",xref = "paper",
+                      xanchor = "center",yanchor = "center",showarrow = FALSE) %>%
+      add_annotations(text = paste0('B: EQ = ',EQ_before[3],'    RR = ',RR_before[3],'\n',
+                                    'A: EQ = ',EQ_after[3],'    RR = ',RR_after[3]),
+                      x = 0.01,y = 0.95,yref = "paper",xref = "paper",
+                      xanchor = "left",yanchor = "top",showarrow = FALSE)
     p4 = plot_ly(df[df$Area=="Trust - Portage",],x=~Quintile, y=~Density_per_10000_people.x, type='bar', color=I("royalblue"),name="Before")%>%
       add_trace(y=~Density_per_10000_people.y, color=I("orange"),name="After")%>%
-      add_annotations(text = ~Area,x = 0.5,y = 1,yref = "paper",xref = "paper",
-                      xanchor = "center",yanchor = "bottom",showarrow = FALSE)
-    
+      add_annotations(text = ~Area,
+                      x = 0.5,y = 1,yref = "paper",xref = "paper",
+                      xanchor = "center",yanchor = "center",showarrow = FALSE) %>%
+      add_annotations(text = paste0('B: EQ = ',EQ_before[4],'    RR = ',RR_before[4],'\n',
+                                    'A: EQ = ',EQ_after[4],'    RR = ',RR_after[4]),
+                      x = 0.01,y = 0.95,yref = "paper",xref = "paper",
+                      xanchor = "left",yanchor = "top",showarrow = FALSE)
     subplot(p1,p2,p3,p4,margin = 0.05,nrows=2)
   })
   
@@ -626,25 +849,61 @@ server = function(input, output){
     before = zones_off_density_table()
     after = off_license_scenario()[[11]]
     
+    EQ_before = sapply(c("CBD","Other","Trust - Waitakere","Trust - Portage"), 
+                       function(x){den = sort(before$`Density_per_km²`[before$Area==x]);den[5]/den[1]})
+    RR_before = sapply(c("CBD","Other","Trust - Waitakere","Trust - Portage"), 
+                       function(x){
+                         df = before[before$Area==x,]
+                         df$`Density_per_km²`[df$Quintile==5]/df$`Density_per_km²`[df$Quintile==1]})
+    EQ_after = sapply(c("CBD","Other","Trust - Waitakere","Trust - Portage"), 
+                      function(x){den = sort(after$`Density_per_km²`[after$Area==x]);den[5]/den[1]})
+    RR_after = sapply(c("CBD","Other","Trust - Waitakere","Trust - Portage"), 
+                      function(x){
+                        df = after[after$Area==x,]
+                        df$`Density_per_km²`[df$Quintile==5]/df$`Density_per_km²`[df$Quintile==1]})
+    EQ_before = round(EQ_before,1)
+    RR_before = round(RR_before,1)
+    EQ_after = round(EQ_after,1)
+    RR_after = round(RR_after,1)
+    
     df = merge(before,after,by=c("Area","Quintile"))
     df$Quintile=paste0("Q",df$Quintile)
-    p1 = plot_ly(df[df$Area=="CBD",],x=~Quintile, y=~Density_per_km².x, type='bar', color=I("royalblue"))%>%
-      add_trace(y=~Density_per_km².y, color=I("orange"))%>%style(showlegend = FALSE)%>%
-      add_annotations(text = ~Area,x = 0.5,y = 1,yref = "paper",xref = "paper",
-                      xanchor = "center",yanchor = "bottom",showarrow = FALSE)
-    p2 = plot_ly(df[df$Area=="Other",],x=~Quintile, y=~Density_per_km².x, type='bar', color=I("royalblue"))%>%
-      add_trace(y=~Density_per_km².y, color=I("orange"))%>%style(showlegend = FALSE)%>%
-      add_annotations(text = ~Area,x = 0.5,y = 1,yref = "paper",xref = "paper",
-                      xanchor = "center",yanchor = "bottom",showarrow = FALSE)
-    p3 = plot_ly(df[df$Area=="Trust - Waitakere",],x=~Quintile, y=~Density_per_km².x, type='bar', color=I("royalblue"))%>%
-      add_trace(y=~Density_per_km².y, color=I("orange"))%>%style(showlegend = FALSE)%>%
-      add_annotations(text = ~Area,x = 0.5,y = 1,yref = "paper",xref = "paper",
-                      xanchor = "center",yanchor = "bottom",showarrow = FALSE)
-    p4 = plot_ly(df[df$Area=="Trust - Portage",],x=~Quintile, y=~Density_per_km².x, type='bar', color=I("royalblue"),name="Before")%>%
-      add_trace(y=~Density_per_km².y, color=I("orange"),name="After")%>%
-      add_annotations(text = ~Area,x = 0.5,y = 1,yref = "paper",xref = "paper",
-                      xanchor = "center",yanchor = "bottom",showarrow = FALSE)
-    
+    p1 = plot_ly(df[df$Area=="CBD",],x=~Quintile, y=~`Density_per_km².x`, type='bar', color=I("royalblue"))%>%
+      add_trace(y=~`Density_per_km².y`, color=I("orange"))%>%style(showlegend = FALSE)%>%
+      add_annotations(text = ~Area,
+                      x = 0.5,y = 1,yref = "paper",xref = "paper",
+                      xanchor = "center",yanchor = "bottom",showarrow = FALSE) %>%
+      add_annotations(text = paste0('B: EQ = ',EQ_before[1],'    RR = ',RR_before[1],'\n',
+                                    'A: EQ = ',EQ_after[1],'    RR = ',RR_after[1]),
+                      x = 0.01,y = 0.95,yref = "paper",xref = "paper",
+                      xanchor = "left",yanchor = "top",showarrow = FALSE)
+    p2 = plot_ly(df[df$Area=="Other",],x=~Quintile, y=~`Density_per_km².x`, type='bar', color=I("royalblue"))%>%
+      add_trace(y=~`Density_per_km².y`, color=I("orange"))%>%style(showlegend = FALSE)%>%
+      add_annotations(text = ~Area,
+                      x = 0.5,y = 1,yref = "paper",xref = "paper",
+                      xanchor = "center",yanchor = "bottom",showarrow = FALSE) %>%
+      add_annotations(text = paste0('B: EQ = ',EQ_before[2],'    RR = ',RR_before[2],'\n',
+                                    'A: EQ = ',EQ_after[2],'    RR = ',RR_after[2]),
+                      x = 0.01,y = 0.95,yref = "paper",xref = "paper",
+                      xanchor = "left",yanchor = "top",showarrow = FALSE)
+    p3 = plot_ly(df[df$Area=="Trust - Waitakere",],x=~Quintile, y=~`Density_per_km².x`, type='bar', color=I("royalblue"))%>%
+      add_trace(y=~`Density_per_km².y`, color=I("orange"))%>%style(showlegend = FALSE)%>%
+      add_annotations(text = ~Area,
+                      x = 0.5,y = 1,yref = "paper",xref = "paper",
+                      xanchor = "center",yanchor = "center",showarrow = FALSE) %>%
+      add_annotations(text = paste0('B: EQ = ',EQ_before[3],'    RR = ',RR_before[3],'\n',
+                                    'A: EQ = ',EQ_after[3],'    RR = ',RR_after[3]),
+                      x = 0.01,y = 0.95,yref = "paper",xref = "paper",
+                      xanchor = "left",yanchor = "top",showarrow = FALSE)
+    p4 = plot_ly(df[df$Area=="Trust - Portage",],x=~Quintile, y=~`Density_per_km².x`, type='bar', color=I("royalblue"),name="Before")%>%
+      add_trace(y=~`Density_per_km².y`, color=I("orange"),name="After")%>%
+      add_annotations(text = ~Area,
+                      x = 0.5,y = 1,yref = "paper",xref = "paper",
+                      xanchor = "center",yanchor = "center",showarrow = FALSE) %>%
+      add_annotations(text = paste0('B: EQ = ',EQ_before[4],'    RR = ',RR_before[4],'\n',
+                                    'A: EQ = ',EQ_after[4],'    RR = ',RR_after[4]),
+                      x = 0.01,y = 0.95,yref = "paper",xref = "paper",
+                      xanchor = "left",yanchor = "top",showarrow = FALSE)
     subplot(p1,p2,p3,p4,margin = 0.05,nrows=2)
   })
   
@@ -652,18 +911,42 @@ server = function(input, output){
     before = overall_off_density_table()
     after = off_license_scenario()[[10]]
     
+    den_before = sort(before$Density_per_10000_people)
+    EQ_before = round(den_before[5]/den_before[1],1)
+    RR_before = round(before$Density_per_10000_people[before$Quintile==5]/before$Density_per_10000_people[before$Quintile==1],1)
+    
+    den_after = sort(after$Density_per_10000_people)
+    EQ_after = round(den_after[5]/den_after[1],1)
+    RR_after = round(after$Density_per_10000_people[after$Quintile==5]/after$Density_per_10000_people[after$Quintile==1],1)
+    
     plot_ly(before, x=paste0("Q",before$Quintile),y=~Density_per_10000_people,type="bar",color=I("seagreen"),name="Before")%>%
       add_trace(y=after$Density_per_10000_people, color=I("plum1"),name="After")%>%
-      layout(yaxis=list(title="Density"))
+      layout(yaxis=list(title="Density")) %>%
+      add_annotations(text = paste0('B: EQ = ',EQ_before,'    RR = ',RR_before,'\n',
+                                    'A: EQ = ',EQ_after,'    RR = ',RR_after),
+                      x = 0.01,y = 0.95,yref = "paper",xref = "paper",
+                      xanchor = "left",yanchor = "bottom",showarrow = FALSE)
   })
   
   output$scenario_overall_hist_area = renderPlotly({
     before = overall_off_density_table()
     after = off_license_scenario()[[10]]
     
-    plot_ly(before, x=paste0("Q",before$Quintile),y=~Density_per_km²,type="bar",color=I("seagreen"),name="Before")%>%
-      add_trace(y=after$Density_per_km², color=I("plum1"),name="After")%>%
-      layout(yaxis=list(title="Density"))
+    den_before = sort(before$`Density_per_km²`)
+    EQ_before = round(den_before[5]/den_before[1],1)
+    RR_before = round(before$`Density_per_km²`[before$Quintile==5]/before$`Density_per_km²`[before$Quintile==1],1)
+    
+    den_after = sort(after$`Density_per_km²`)
+    EQ_after = round(den_after[5]/den_after[1],1)
+    RR_after = round(after$`Density_per_km²`[after$Quintile==5]/after$`Density_per_km²`[after$Quintile==1],1)
+    
+    plot_ly(before, x=paste0("Q",before$Quintile),y=~`Density_per_km²`,type="bar",color=I("seagreen"),name="Before")%>%
+      add_trace(y=after$`Density_per_km²`, color=I("plum1"),name="After")%>%
+      layout(yaxis=list(title="Density")) %>%
+      add_annotations(text = paste0('B: EQ = ',EQ_before,'    RR = ',RR_before,'\n',
+                                    'A: EQ = ',EQ_after,'    RR = ',RR_after),
+                      x = 0.01,y = 0.95,yref = "paper",xref = "paper",
+                      xanchor = "left",yanchor = "bottom",showarrow = FALSE)
   })
   
   
