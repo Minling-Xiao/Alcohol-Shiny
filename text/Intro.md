@@ -13,6 +13,11 @@ Auckland, New Zealand including:
         from marae;
     -   restriction on distance between off-license alcohol outlets.
 
+When visualizing the density of alcohol outlets for each quintile of
+deprivation level, the values of Extremal Quotient (max density / min
+density) and Relative Risk (Quintile 5 density / Q1 density) are
+reported on the graphs.
+
 To accommodate the varying policies on alcohol sales in different parts
 of Auckland, the landmass of the city is divided into four distinct
 areas for visualization purposes in the Shiny App: Trust – Waitakere,

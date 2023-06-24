@@ -9,8 +9,8 @@ server = function(input, output){
   })
   
   imd = reactive({
-    load("RData/Shaper_IMD_Auckland.RData")
-    return(IMD_Auckland)
+    load("RData/simplified_IMD_Auckland.RData")
+    return(simplified_imd)
   })
   
   on_license_density = reactive({
@@ -28,6 +28,8 @@ server = function(input, output){
     overall$Density_per_10000_people = round(overall$Density_per_10000_people,4)
     overall$`Density_per_km²` = round(overall$`Density_per_km²`,6)
     overall$Shape_area = round(overall$Shape_area,6)
+    names(overall)[which(names(overall)=='Population')] = 'Population(10,000)'
+    names(overall)[which(names(overall)=='Shape_area')] = 'Shape_area(km²)'
     return(overall)
   })
   
@@ -36,6 +38,8 @@ server = function(input, output){
     on_zones_density$Density_per_10000_people = round(on_zones_density$Density_per_10000_people,4)
     on_zones_density$`Density_per_km²` = round(on_zones_density$`Density_per_km²`,6)
     on_zones_density$Shape_area = round(on_zones_density$Shape_area,6)
+    names(on_zones_density)[which(names(on_zones_density)=='Population')] = 'Population(10,000)'
+    names(on_zones_density)[which(names(on_zones_density)=='Shape_area')] = 'Shape_area(km²)'
     on_zones_density[,c(1,2,5,3,6,4,7)]
   })
   
@@ -44,6 +48,8 @@ server = function(input, output){
     overall$Density_per_10000_people = round(overall$Density_per_10000_people,4)
     overall$`Density_per_km²` = round(overall$`Density_per_km²`,6)
     overall$Shape_area = round(overall$Shape_area,6)
+    names(overall)[which(names(overall)=='Population')] = 'Population(10,000)'
+    names(overall)[which(names(overall)=='Shape_area')] = 'Shape_area(km²)'
     return(overall)
   })
   
@@ -52,6 +58,8 @@ server = function(input, output){
     off_zones_density$Density_per_10000_people = round(off_zones_density$Density_per_10000_people,4)
     off_zones_density$`Density_per_km²` = round(off_zones_density$`Density_per_km²`,6)
     off_zones_density$Shape_area = round(off_zones_density$Shape_area,6)
+    names(off_zones_density)[which(names(off_zones_density)=='Population')] = 'Population(10,000)'
+    names(off_zones_density)[which(names(off_zones_density)=='Shape_area')] = 'Shape_area(km²)'
     off_zones_density[,c(1,2,5,3,6,4,7)]
   })
   
@@ -75,8 +83,7 @@ server = function(input, output){
     Off_license = filter(alcohol, License_Ty=="Off-licence")
     Label_Area = st_cast(on_license_density)[-2,]
     
-    map = tm_shape(IMD) + tm_polygons("Areas", palette = "Set2", alpha = 0.8, 
-                                      popup.vars=colnames(IMD)[1:(ncol(IMD)-1)],
+    map = tm_shape(IMD) + tm_polygons("Areas", palette = "Set2", alpha = 0.8,
                                       legend.show = FALSE) +
       tm_shape(On_license) + tm_dots(col = "ivory") +
       tm_shape(Off_license) + tm_dots(col ="purple") + tm_view(set.view=c(174.76,-36.8,10)) +
@@ -134,11 +141,15 @@ server = function(input, output){
   
   output$on_density_pop_table = renderDataTable({
     data = on_license_density()
+    names(data)[which(names(data)=='Population')] = 'Population(10,000)'
+    names(data)[which(names(data)=='Shape_area')] = 'Shape_area(km²)'
     as.data.frame(data)[,1:4]
   })
   
   output$on_density_area_table = renderDataTable({
     data = on_license_density()
+    names(data)[which(names(data)=='Population')] = 'Population(10,000)'
+    names(data)[which(names(data)=='Shape_area')] = 'Shape_area(km²)'
     as.data.frame(data)[,c(1:2,5:6)]
   })
   
@@ -167,6 +178,8 @@ server = function(input, output){
   
   output$off_density_pop_table = renderDataTable({
     data = off_license_density()
+    names(data)[which(names(data)=='Population')] = 'Population(10,000)'
+    names(data)[which(names(data)=='Shape_area')] = 'Shape_area(km²)'
     as.data.frame(data)[,1:4]
   })
   
@@ -194,56 +207,78 @@ server = function(input, output){
   
   output$off_density_area_table = renderDataTable({
     data = off_license_density()
+    names(data)[which(names(data)=='Population')] = 'Population(10,000)'
+    names(data)[which(names(data)=='Shape_area')] = 'Shape_area(km²)'
     as.data.frame(data)[,c(1:2,5:6)]
   })
   
   output$overall_on_density_table = renderDataTable({
     data = overall_on_density_table()
+    names(data)[which(names(data)=='Population')] = 'Population(10,000)'
+    names(data)[which(names(data)=='Shape_area')] = 'Shape_area(km²)'
     data
   })
   
   output$cbd_on_density_table = renderDataTable({
     data = zones_on_density_table()
+    names(data)[which(names(data)=='Population')] = 'Population(10,000)'
+    names(data)[which(names(data)=='Shape_area')] = 'Shape_area(km²)'
     data[data$Area=="CBD",-1]
   })
   
   output$portage_on_density_table = renderDataTable({
     data = zones_on_density_table()
+    names(data)[which(names(data)=='Population')] = 'Population(10,000)'
+    names(data)[which(names(data)=='Shape_area')] = 'Shape_area(km²)'
     data[data$Area=="Trust - Portage",-1]
   })
   
   output$waitakere_on_density_table = renderDataTable({
     data = zones_on_density_table()
+    names(data)[which(names(data)=='Population')] = 'Population(10,000)'
+    names(data)[which(names(data)=='Shape_area')] = 'Shape_area(km²)'
     data[data$Area=="Trust - Waitakere",-1]
   })
   
   output$rest_on_density_table = renderDataTable({
     data = zones_on_density_table()
+    names(data)[which(names(data)=='Population')] = 'Population(10,000)'
+    names(data)[which(names(data)=='Shape_area')] = 'Shape_area(km²)'
     data[data$Area=="Other",-1]
   })
   
   output$overall_off_density_table = renderDataTable({
     data = overall_off_density_table()
+    names(data)[which(names(data)=='Population')] = 'Population(10,000)'
+    names(data)[which(names(data)=='Shape_area')] = 'Shape_area(km²)'
     data
   })
   
   output$cbd_off_density_table = renderDataTable({
     data = zones_off_density_table()
+    names(data)[which(names(data)=='Population')] = 'Population(10,000)'
+    names(data)[which(names(data)=='Shape_area')] = 'Shape_area(km²)'
     data[data$Area=="CBD",-1]
   })
   
   output$portage_off_density_table = renderDataTable({
     data = zones_off_density_table()
+    names(data)[which(names(data)=='Population')] = 'Population(10,000)'
+    names(data)[which(names(data)=='Shape_area')] = 'Shape_area(km²)'
     data[data$Area=="Trust - Portage",-1]
   })
   
   output$waitakere_off_density_table = renderDataTable({
     data = zones_off_density_table()
+    names(data)[which(names(data)=='Population')] = 'Population(10,000)'
+    names(data)[which(names(data)=='Shape_area')] = 'Shape_area(km²)'
     data[data$Area=="Trust - Waitakere",-1]
   })
   
   output$rest_off_density_table = renderDataTable({
     data = zones_off_density_table()
+    names(data)[which(names(data)=='Population')] = 'Population(10,000)'
+    names(data)[which(names(data)=='Shape_area')] = 'Shape_area(km²)'
     data[data$Area=="Other",-1]
   })
   
@@ -468,16 +503,21 @@ server = function(input, output){
     alcohol = off_license_scenario()[[7]]
     org_density = off_license_density()
     
-    if (nrow(alcohol)==0) return(org_density)
-    else{
+    if (nrow(alcohol)==0) {
+      names(org_density)[which(names(org_density)=='Population')] = 'Population(10,000)'
+      names(org_density)[which(names(org_density)=='Shape_area')] = 'Shape_area(km²)'
+      org_density
+    }else{
       Number_of_outlets_after = lengths(st_intersects(org_density,alcohol))
       org_density$Number_of_outlets_after = Number_of_outlets_after
       org_density$Density_per_10000_people_after = Number_of_outlets_after/org_density$Population 
       org_density$`Density_per_km²_after` = Number_of_outlets_after/org_density$Shape_area
       colnames(org_density)[c(2,4,6)] = c("Number_of_outlets_before","Density_per_10000_people_before","Density_per_km²_before")
-      org_density[,c("Areas","Number_of_outlets_before","Number_of_outlets_after","Population",
+      names(org_density)[which(names(org_density)=='Population')] = 'Population(10,000)'
+      names(org_density)[which(names(org_density)=='Shape_area')] = 'Shape_area(km²)'
+      org_density[,c("Areas","Number_of_outlets_before","Number_of_outlets_after","Population(10,000)",
                      "Density_per_10000_people_before","Density_per_10000_people_after",
-                     "Shape_area","Density_per_km²_before","Density_per_km²_after","geometry")]
+                     "Shape_area(km²)","Density_per_km²_before","Density_per_km²_after","geometry")]
     }
     
   })
@@ -485,12 +525,16 @@ server = function(input, output){
   output$off_license_scenario_density_table = renderDataTable({
     if (nrow(off_license_scenario()[[7]])==0){
       data = off_license_density()
+      names(data)[which(names(data)=='Population')] = 'Population(10,000)'
+      names(data)[which(names(data)=='Shape_area')] = 'Shape_area(km²)'
       as.data.frame(data)[,1:(ncol(data)-1)]
     }else{
       data = as.data.frame(off_license_scenario_density())
       colnames(data) = c("Areas","Number_of_outlets_before","Number_of_outlets_after",
                          "Population","Density_before(pop)","Density_after(pop)",
                          "Shape_area","Density_before(area)","Density_after(area)","geometry")
+      names(data)[which(names(data)=='Population')] = 'Population(10,000)'
+      names(data)[which(names(data)=='Shape_area')] = 'Shape_area(km²)'
       data[,1:(ncol(data)-1)]
     }
   })
@@ -594,6 +638,8 @@ server = function(input, output){
       density$Density_per_10000_people_before = round(before$Density_per_10000_people,4)
       density$`Density_per_km²_before` = round(before$`Density_per_km²`,6)
       density$Number_of_outlets_before = before$Number_of_outlets
+      names(density)[which(names(density)=='Population')] = 'Population(10,000)'
+      names(density)[which(names(density)=='Shape_area')] = 'Shape_area(km²)'
       density[,c(1:3,9,4,7,5,8,6)]
     } 
   })
@@ -610,7 +656,10 @@ server = function(input, output){
       density$Density_per_10000_people_before = round(before$Density_per_10000_people,4)
       density$`Density_per_km²_before` = round(before$`Density_per_km²`,6)
       density$Number_of_outlets_before = before$Number_of_outlets
+      names(density)[which(names(density)=='Population')] = 'Population(10,000)'
+      names(density)[which(names(density)=='Shape_area')] = 'Shape_area(km²)'
       density[,c(1:4,10,5,8,6,9,7)]
+      
     } 
   })
   
@@ -620,6 +669,10 @@ server = function(input, output){
     den = sort(density$Density_per_10000_people)
     EQ = den[5]/den[1]
     RR = density$Density_per_10000_people[density$Quintile==5]/density$Density_per_10000_people[density$Quintile==1]
+    
+    EQ = ifelse(is.na(EQ)|is.infinite(EQ),NA,EQ)
+    RR = ifelse(is.na(RR)|is.infinite(RR),NA,RR)
+    
     plot_ly(data=density,x=paste0("Q",density$Quintile),y=~Density_per_10000_people,type="bar",color=I("skyblue")) %>%
       layout(yaxis=list(title="Density"), xaxis=list(title=paste0("Quintile",'\n',"EQ = ",round(EQ,1),"   RR = ",round(RR,1))))
   })
@@ -629,6 +682,10 @@ server = function(input, output){
     den = sort(density$`Density_per_km²`)
     EQ = den[5]/den[1]
     RR = density$`Density_per_km²`[density$Quintile==5]/density$`Density_per_km²`[density$Quintile==1]
+    
+    EQ = ifelse(is.na(EQ)|is.infinite(EQ),NA,EQ)
+    RR = ifelse(is.na(RR)|is.infinite(RR),NA,RR)
+    
     plot_ly(data=density,x=paste0("Q",density$Quintile),y=~`Density_per_km²`,type="bar",color=I("skyblue")) %>%
       layout(yaxis=list(title="Density"), xaxis=list(title=paste0("Quintile",'\n',"EQ = ",round(EQ,1),"   RR = ",round(RR,1))))
   })
@@ -647,6 +704,9 @@ server = function(input, output){
                   df$Density_per_10000_people[df$Quintile==5]/df$Density_per_10000_people[df$Quintile==1]})
     EQ = EQ[c(1,3,2,4)]
     RR = RR[c(1,3,2,4)]
+    
+    EQ = ifelse(is.na(EQ)|is.infinite(EQ),NA,EQ)
+    RR = ifelse(is.na(RR)|is.infinite(RR),NA,RR)
     
     p1 = plot_ly(data=df1,x=~Area,y=~Density_per_10000_people, type="bar",color=~factor(Quintile),name=~factor(Quintile)) %>% 
       style(showlegend = FALSE)
@@ -681,6 +741,9 @@ server = function(input, output){
     EQ = EQ[c(1,3,2,4)]
     RR = RR[c(1,3,2,4)]
     
+    EQ = ifelse(is.na(EQ)|is.infinite(EQ),NA,EQ)
+    RR = ifelse(is.na(RR)|is.infinite(RR),NA,RR)
+    
     p1 = plot_ly(data=df1,x=~Area,y=~`Density_per_km²`, type="bar",color=~factor(Quintile),name=~factor(Quintile)) %>% 
       style(showlegend = FALSE)
     p2 = plot_ly(data=df2,x=~Area,y=~`Density_per_km²`, type="bar",color=~factor(Quintile)) %>% 
@@ -704,6 +767,10 @@ server = function(input, output){
     den = sort(density$Density_per_10000_people)
     EQ = den[5]/den[1]
     RR = density$Density_per_10000_people[density$Quintile==5]/density$Density_per_10000_people[density$Quintile==1]
+    
+    EQ = ifelse(is.na(EQ)|is.infinite(EQ),NA,EQ)
+    RR = ifelse(is.na(RR)|is.infinite(RR),NA,RR)
+    
     plot_ly(data=density,x=paste0("Q",density$Quintile),y=~Density_per_10000_people,type="bar",color=I("skyblue")) %>%
       layout(yaxis=list(title="Density"), xaxis=list(title=paste0("Quintile",'\n',"EQ = ",round(EQ,1),"   RR = ",round(RR,1))))
   })
@@ -713,6 +780,10 @@ server = function(input, output){
     den = sort(density$`Density_per_km²`)
     EQ = den[5]/den[1]
     RR = density$`Density_per_km²`[density$Quintile==5]/density$`Density_per_km²`[density$Quintile==1]
+    
+    EQ = ifelse(is.na(EQ)|is.infinite(EQ),NA,EQ)
+    RR = ifelse(is.na(RR)|is.infinite(RR),NA,RR)
+    
     plot_ly(data=density,x=paste0("Q",density$Quintile),y=~`Density_per_km²`,type="bar",color=I("skyblue")) %>%
       layout(yaxis=list(title="Density"), xaxis=list(title=paste0("Quintile",'\n',"EQ = ",round(EQ,1),"   RR = ",round(RR,1))))
   })
@@ -731,6 +802,9 @@ server = function(input, output){
                   df$Density_per_10000_people[df$Quintile==5]/df$Density_per_10000_people[df$Quintile==1]})
     EQ = EQ[c(1,3,2,4)]
     RR = RR[c(1,3,2,4)]
+    
+    EQ = ifelse(is.na(EQ)|is.infinite(EQ),NA,EQ)
+    RR = ifelse(is.na(RR)|is.infinite(RR),NA,RR)
     
     p1 = plot_ly(data=df1,x=~Area,y=~Density_per_10000_people, type="bar",color=~factor(Quintile),name=~factor(Quintile)) %>% 
       style(showlegend = FALSE)
@@ -764,6 +838,9 @@ server = function(input, output){
                   df$`Density_per_km²`[df$Quintile==5]/df$`Density_per_km²`[df$Quintile==1]})
     EQ = EQ[c(1,3,2,4)]
     RR = RR[c(1,3,2,4)]
+    
+    EQ = ifelse(is.na(EQ)|is.infinite(EQ),NA,EQ)
+    RR = ifelse(is.na(RR)|is.infinite(RR),NA,RR)
     
     p1 = plot_ly(data=df1,x=~Area,y=~`Density_per_km²`, type="bar",color=~factor(Quintile),name=~factor(Quintile)) %>% 
       style(showlegend = FALSE)
@@ -803,6 +880,11 @@ server = function(input, output){
     RR_before = round(RR_before,1)
     EQ_after = round(EQ_after,1)
     RR_after = round(RR_after,1)
+    
+    EQ_before = ifelse(is.na(EQ_before)|is.infinite(EQ_before),NA,EQ_before)
+    RR_before = ifelse(is.na(RR_before)|is.infinite(RR_before),NA,RR_before)
+    EQ_after = ifelse(is.na(EQ_after)|is.infinite(EQ_after),NA,EQ_after)
+    RR_after = ifelse(is.na(RR_after)|is.infinite(RR_after),NA,RR_after)
     
     df = merge(before,after,by=c("Area","Quintile"))
     df$Quintile=paste0("Q",df$Quintile)
@@ -866,6 +948,11 @@ server = function(input, output){
     EQ_after = round(EQ_after,1)
     RR_after = round(RR_after,1)
     
+    EQ_before = ifelse(is.na(EQ_before)|is.infinite(EQ_before),NA,EQ_before)
+    RR_before = ifelse(is.na(RR_before)|is.infinite(RR_before),NA,RR_before)
+    EQ_after = ifelse(is.na(EQ_after)|is.infinite(EQ_after),NA,EQ_after)
+    RR_after = ifelse(is.na(RR_after)|is.infinite(RR_after),NA,RR_after)
+    
     df = merge(before,after,by=c("Area","Quintile"))
     df$Quintile=paste0("Q",df$Quintile)
     p1 = plot_ly(df[df$Area=="CBD",],x=~Quintile, y=~`Density_per_km².x`, type='bar', color=I("royalblue"))%>%
@@ -919,6 +1006,11 @@ server = function(input, output){
     EQ_after = round(den_after[5]/den_after[1],1)
     RR_after = round(after$Density_per_10000_people[after$Quintile==5]/after$Density_per_10000_people[after$Quintile==1],1)
     
+    EQ_before = ifelse(is.na(EQ_before)|is.infinite(EQ_before),NA,EQ_before)
+    RR_before = ifelse(is.na(RR_before)|is.infinite(RR_before),NA,RR_before)
+    EQ_after = ifelse(is.na(EQ_after)|is.infinite(EQ_after),NA,EQ_after)
+    RR_after = ifelse(is.na(RR_after)|is.infinite(RR_after),NA,RR_after)
+    
     plot_ly(before, x=paste0("Q",before$Quintile),y=~Density_per_10000_people,type="bar",color=I("seagreen"),name="Before")%>%
       add_trace(y=after$Density_per_10000_people, color=I("plum1"),name="After")%>%
       layout(yaxis=list(title="Density")) %>%
@@ -940,6 +1032,11 @@ server = function(input, output){
     EQ_after = round(den_after[5]/den_after[1],1)
     RR_after = round(after$`Density_per_km²`[after$Quintile==5]/after$`Density_per_km²`[after$Quintile==1],1)
     
+    EQ_before = ifelse(is.na(EQ_before)|is.infinite(EQ_before),NA,EQ_before)
+    RR_before = ifelse(is.na(RR_before)|is.infinite(RR_before),NA,RR_before)
+    EQ_after = ifelse(is.na(EQ_after)|is.infinite(EQ_after),NA,EQ_after)
+    RR_after = ifelse(is.na(RR_after)|is.infinite(RR_after),NA,RR_after)
+    
     plot_ly(before, x=paste0("Q",before$Quintile),y=~`Density_per_km²`,type="bar",color=I("seagreen"),name="Before")%>%
       add_trace(y=after$`Density_per_km²`, color=I("plum1"),name="After")%>%
       layout(yaxis=list(title="Density")) %>%
@@ -948,8 +1045,6 @@ server = function(input, output){
                       x = 0.01,y = 0.95,yref = "paper",xref = "paper",
                       xanchor = "left",yanchor = "bottom",showarrow = FALSE)
   })
-  
-  
 }
 
 shinyApp(ui=ui, server=server)

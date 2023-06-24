@@ -56,46 +56,6 @@ ui = navbarPage(
              tabPanel("On License",icon = icon("utensils"),
                       h2(strong("On License")),
                       tabsetPanel(
-                        # tabPanel("Overall",
-                        #          br(),
-                        #          fluidRow(
-                        #            column(6,"By Population"),
-                        #            column(6,"By Shape Area")),
-                        #          fluidRow(
-                        #            column(6,leafletOutput("overall_on_density_pop_map", height = 600)%>%withSpinner(color="grey")),
-                        #            column(6,leafletOutput("overall_on_density_area_map", height = 600)%>%withSpinner(color="grey")))),
-                        # tabPanel("CBD",
-                        #          br(),
-                        #          fluidRow(
-                        #            column(6,"By Population"),
-                        #            column(6,"By Shape Area")),
-                        #          fluidRow(
-                        #            column(6,leafletOutput("cbd_on_density_pop_map", height = 700)%>%withSpinner(color="grey")),
-                        #            column(6,leafletOutput("cbd_on_density_area_map", height = 700)%>%withSpinner(color="grey")))),
-                        # tabPanel("Trust - Portage",
-                        #          br(),
-                        #          fluidRow(
-                        #            column(6,"By Population"),
-                        #            column(6,"By Shape Area")),
-                        #          fluidRow(
-                        #            column(6,leafletOutput("portage_on_density_pop_map", height = 700)%>%withSpinner(color="grey")),
-                        #            column(6,leafletOutput("portage_on_density_area_map", height = 700)%>%withSpinner(color="grey")))),
-                        # tabPanel("Trust - Waitakere",
-                        #          br(),
-                        #          fluidRow(
-                        #            column(6,"By Population"),
-                        #            column(6,"By Shape Area")),
-                        #          fluidRow(
-                        #            column(6,leafletOutput("waitakere_on_density_pop_map", height = 700)%>%withSpinner(color="grey")),
-                        #            column(6,leafletOutput("waitakere_on_density_area_map", height = 700)%>%withSpinner(color="grey")))),
-                        # tabPanel("The rest of Auckland",
-                        #          br(),
-                        #          fluidRow(
-                        #            column(6,"By Population"),
-                        #            column(6,"By Shape Area")),
-                        #          fluidRow(
-                        #            column(6,leafletOutput("rest_on_density_pop_map", height = 700)%>%withSpinner(color="grey")),
-                        #            column(6,leafletOutput("rest_on_density_area_map", height = 700)%>%withSpinner(color="grey")))),
                         tabPanel("Histogram",
                                  fluidRow(column(3,h4(strong("By Population")))),
                                  br(),
@@ -121,51 +81,11 @@ ui = navbarPage(
                                  dataTableOutput("waitakere_on_density_table")%>%withSpinner(color="grey"),
                                  hr(),
                                  h4(strong("The rest of Auckland")),
-                                 dataTableOutput("rest_on_density_table")%>%withSpinner(color="grey"),
+                                 dataTableOutput("rest_on_density_table")%>%withSpinner(color="grey")
                                  ))),
              tabPanel("Off License",icon = icon("wine-bottle"),
                       h2(strong("Off License")),
                       tabsetPanel(
-                        # tabPanel("Overall",
-                        #          br(),
-                        #          fluidRow(
-                        #            column(6,"By Population"),
-                        #            column(6,"By Shape Area")),
-                        #          fluidRow(
-                        #            column(6,leafletOutput("overall_off_density_pop_map", height = 600)%>%withSpinner(color="grey")),
-                        #            column(6,leafletOutput("overall_off_density_area_map", height = 600)%>%withSpinner(color="grey")))),
-                        # tabPanel("CBD",
-                        #          br(),
-                        #          fluidRow(
-                        #            column(6,"By Population"),
-                        #            column(6,"By Shape Area")),
-                        #          fluidRow(
-                        #            column(6,leafletOutput("cbd_off_density_pop_map", height = 700)%>%withSpinner(color="grey")),
-                        #            column(6,leafletOutput("cbd_off_density_area_map", height = 700)%>%withSpinner(color="grey")))),
-                        # tabPanel("Trust - Portage",
-                        #          br(),
-                        #          fluidRow(
-                        #            column(6,"By Population"),
-                        #            column(6,"By Shape Area")),
-                        #          fluidRow(
-                        #            column(6,leafletOutput("portage_off_density_pop_map", height = 700)%>%withSpinner(color="grey")),
-                        #            column(6,leafletOutput("portage_off_density_area_map", height = 700)%>%withSpinner(color="grey")))),
-                        # tabPanel("Trust - Waitakere",
-                        #          br(),
-                        #          fluidRow(
-                        #            column(6,"By Population"),
-                        #            column(6,"By Shape Area")),
-                        #          fluidRow(
-                        #            column(6,leafletOutput("waitakere_off_density_pop_map", height = 700)%>%withSpinner(color="grey")),
-                        #            column(6,leafletOutput("waitakere_off_density_area_map", height = 700)%>%withSpinner(color="grey")))),
-                        # tabPanel("The rest of Auckland",
-                        #          br(),
-                        #          fluidRow(
-                        #            column(6,"By Population"),
-                        #            column(6,"By Shape Area")),
-                        #          fluidRow(
-                        #            column(6,leafletOutput("rest_off_density_pop_map", height = 700)%>%withSpinner(color="grey")),
-                        #            column(6,leafletOutput("rest_off_density_area_map", height = 700)%>%withSpinner(color="grey")))),
                         tabPanel("Histogram",
                                  fluidRow(column(3,h4(strong("By Population")))),
                                  br(),
@@ -191,7 +111,7 @@ ui = navbarPage(
                                  dataTableOutput("waitakere_off_density_table")%>%withSpinner(color="grey"),
                                  hr(),
                                  h4(strong("The rest of Auckland")),
-                                 dataTableOutput("rest_off_density_table")%>%withSpinner(color="grey"),
+                                 dataTableOutput("rest_off_density_table")%>%withSpinner(color="grey")
                         )))),
 
   navbarMenu("School & Marae",icon=icon("map-location-dot"),
@@ -225,14 +145,6 @@ ui = navbarPage(
                                                column(6,h4(strong("By Shape Area")),
                                                       leafletOutput("off_license_scenario_density_area_plot", height = 600)%>%
                                                         withSpinner(color="grey")))),
-                                    # tabPanel("Deprivation",
-                                    #          fluidRow(
-                                    #            column(6,h4("By Population"),
-                                    #                   leafletOutput("off_license_scenario_density_dep_pop_plot", height = 600)%>%
-                                    #                     withSpinner(color="grey")),
-                                    #            column(6,h4("By Shape Area"),
-                                    #                   leafletOutput("off_license_scenario_density_dep_area_plot", height = 600)%>%
-                                    #                     withSpinner(color="grey")))),
                                     tabPanel("Density - Deprivation",
                                              fluidRow(column(4,h4(strong("By Population")))),
                                              fluidRow(column(4,plotlyOutput("scenario_overall_hist_pop")
