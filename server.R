@@ -475,10 +475,10 @@ server = function(input, output){
     if (outlet_dist > 0) outlet_map = tm_shape(Outlet_scenario) + tm_dots(col="purple")
     else outlet_map = NULL
     
-    if (nrow(Overall_scenario) >0) overall_outlet_map = tm_shape(Overall_scenario) + tm_dots(col="red3")
+    if (nrow(Overall_scenario) >0) overall_outlet_map = tm_shape(Overall_scenario) + tm_dots(col="red1")
     else overall_outlet_map = NULL
     
-    map = marae_buffer_map + school_buffer_map + tm_shape(Existing_Outlets) + tm_dots(col="lightpink") + 
+    map = marae_buffer_map + school_buffer_map + tm_shape(Existing_Outlets) + tm_dots(col="snow3") + 
       school_map + marae_map +
       outlet_map + overall_outlet_map +
       tm_shape(School) + tm_dots(col="blue") +
@@ -491,8 +491,8 @@ server = function(input, output){
       tm_add_legend(type="fill", 
                     labels=c("Marae","School","Existing_Outlets","Marae_scenario",
                              "School_scenario","Outlet_scenario","Overall_scenario"),
-                    col=c("green","blue","lightpink","olivedrab1",
-                          "deepskyblue","purple","red3"))
+                    col=c("green","blue","snow3","olivedrab1",
+                          "deepskyblue","purple","red1"))
     
     tmap_leaflet(map,in.shiny = TRUE)%>%hideGroup(c("Marae","School","Marae_buffer","School_buffer",
                                                     "Marae_scenario","School_scenario",
